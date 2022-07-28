@@ -99,6 +99,12 @@
 				return 2.0 * atan(1.0 / unity_CameraProjection._m11) * 180.0 / UNITY_PI;
 			}
 
+			bool isVRHandCamera()
+			{
+				return !isVR() && abs(UNITY_MATRIX_V[0].y) > 0.0000005;
+			}
+
+
 			// this checks if the shader is being rendered by a reflection probe
 			// I don't know how check for box projection if that's even possible
 			bool isReflectionProbe()
@@ -106,9 +112,12 @@
 				return UNITY_MATRIX_P[0][0] == 1 && unity_CameraProjection._m11 == 1;
 			}
 
-			bool isVRHandCamera()
-			{
-				return !isVR() && abs(UNITY_MATRIX_V[0].y) > 0.0000005;
+			bool isVRHandCameraPreview() {
+				return isVRHandCamera() && _ScreenParams.y == 720;
+			}
+
+			bool isVRHandCameraPicture() {
+				return isVRHandCamera() && _ScreenParams.y != 720;
 			}
 
 			bool isDesktop()
@@ -153,7 +162,13 @@
 					discard;
 				}
 
-				[branch]if (isVRHandCamera()) {
+				//Discard pixels in screenshots.
+				[branch]if (isVRHandCameraPicture()) {
+					discard;
+				}
+
+				//Discard pixels inthe camera
+				[branch]if (isVRHandCameraPreview()) {
 					discard;
 				}
 
