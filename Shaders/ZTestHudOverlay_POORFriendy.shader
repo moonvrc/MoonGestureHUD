@@ -63,6 +63,59 @@
 				return unity_CameraProjection[2][0] != 0.f || unity_CameraProjection[2][1] != 0.f;
 			}
 
+			bool isVR()
+			{
+				// USING_STEREO_MATRICES
+				#if UNITY_SINGLE_PASS_STEREO
+								return true;
+				#else
+								return false;
+				#endif
+			}
+
+			//UNITY_MATRIX_P._13 < 0 left eye, UNITY_MATRIX_P._13 > 0 right eye & UNITY_MATRIX_P._13 == 0 not vr
+			bool isLeftEye()
+			{
+				return UNITY_MATRIX_P._13 < 0;
+			}
+
+			bool isRightEye()
+			{
+				return UNITY_MATRIX_P._13 > 0;
+			}
+
+			bool isNotVr()
+			{
+				return UNITY_MATRIX_P._13 == 0;
+			}
+
+			bool isOrtho()
+			{
+				return unity_OrthoParams.w == 1 || UNITY_MATRIX_P[3][3] == 1;
+			}
+
+			float verticalFOV()
+			{
+				return 2.0 * atan(1.0 / unity_CameraProjection._m11) * 180.0 / UNITY_PI;
+			}
+
+			// this checks if the shader is being rendered by a reflection probe
+			// I don't know how check for box projection if that's even possible
+			bool isReflectionProbe()
+			{
+				return UNITY_MATRIX_P[0][0] == 1 && unity_CameraProjection._m11 == 1;
+			}
+
+			bool isVRHandCamera()
+			{
+				return !isVR() && abs(UNITY_MATRIX_V[0].y) > 0.0000005;
+			}
+
+			bool isDesktop()
+			{
+				return !isVR() && abs(UNITY_MATRIX_V[0].y) < 0.0000005;
+			}
+
 			v2f vert(float4 pos : POSITION, float2 uv : TEXCOORD0)
 			{
 				v2f o;
@@ -97,6 +150,10 @@
 
 				//Do not draw the shader in a mirror
 				[branch]if (isInMirror()) {
+					discard;
+				}
+
+				[branch]if (isVRHandCamera()) {
 					discard;
 				}
 
