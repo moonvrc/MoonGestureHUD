@@ -1,3 +1,6 @@
+# OBSOLETE, VRChat has now implemented this feature natively.
+
+
 # M.O.O.N Gesture HUD
 A VRChat gesture indicator prefab for Avatar 3.0
 ## Features
